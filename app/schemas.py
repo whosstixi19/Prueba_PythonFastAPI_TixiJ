@@ -7,8 +7,8 @@ class VehiculoBase(BaseModel):
     marca: str
     fabricacion: int
     valor_comercial: float
-    impuesto: float
-    codigo_revision: str
+    impuesto: Optional[float] = None
+    codigo_revision: Optional[str] = None
 
 class VehiculoCreate(VehiculoBase):
     pass

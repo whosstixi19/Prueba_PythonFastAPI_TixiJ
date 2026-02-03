@@ -29,6 +29,7 @@ def read_root():
 def read_vehiculos(skip: int = 0, limit: int = 100, db: Session = Depends(database.get_db)):
     vehiculos = db.query(models.Vehiculo).offset(skip).limit(limit).all()
     return vehiculos
+
 # Leer una VEHICULO por PLACA
 @app.get("/api/vehiculos/{placa}", response_model=schemas.Vehiculo)
 def read_vehiculo(placa: str, db: Session = Depends(database.get_db)):
@@ -47,6 +48,11 @@ def create_vehiculo(vehiculo: schemas.VehiculoCreate, db: Session = Depends(data
         raise HTTPException(status_code=status.HTTP_409_CONFLICT, detail="Ya existe un vehículo con esta placa")
     
     db_vehiculo = models.Vehiculo(**vehiculo.dict())
+
+    if db_vehiculo.fabricacion < 2010:
+        db_vehiculo.valor_comercial = vehiculo.valor_comercial * 1.1
+        
+    db_vehiculo.valor_comercial= vehiculo.valor_comercial*1.25
     db.add(db_vehiculo)
     db.commit()
     db.refresh(db_vehiculo)
@@ -63,6 +69,7 @@ def update_vehiculo(vehiculo: schemas.Vehiculo, db: Session = Depends(database.g
     db_vehiculo.marca = vehiculo.marca
     db_vehiculo.fabricacion = vehiculo.fabricacion
     db_vehiculo.valor_comercial = vehiculo.valor_comercial
+    db_vehiculo.pais_id = vehiculo.pais_id
     db.commit()
     db.refresh(db_vehiculo)
     return db_vehiculo
